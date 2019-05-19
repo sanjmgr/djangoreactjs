@@ -7,15 +7,28 @@ import { Form, Icon, Input, Button, Checkbox, Spin } from 'antd';
 const antIcon = <Icon type="loading" style={{ fontSize: 24 }} spin />;
 
 class Login extends React.Component {
+	componentDidMount() {
+		if (this.props.isAuthenticated) {
+			this.props.history.push('/dashboard');
+		}
+	}
+
+	componentWillReceiveProps(nextProps) {
+		if (nextProps.isAuthenticated) {
+			this.props.history.push('/dashboard');
+		}
+
+		if (nextProps.errors) {
+			console.log(error);
+		}
+	}
+
 	handleSubmit = e => {
 		e.preventDefault();
 		this.props.form.validateFields((err, values) => {
 			if (!err) {
 				console.log('Received values of form: ', values);
-				this.props.auth(values.username, values.password);
-				if (this.props.isAuthenticated) {
-					this.props.history.push('/');
-				}
+				this.props.onAuth(values.username, values.password);
 			}
 		});
 	};
@@ -107,14 +120,14 @@ const LoginForm = Form.create({
 
 const mapStateToProps = state => {
 	return {
-		isLoading: state.isLoading,
-		isAuthenticated: state.isAuthenticated,
-		error: state.error,
+		isLoading: state.auth.isLoading,
+		isAuthenticated: state.auth.isAuthenticated,
+		error: state.auth.error,
 	};
 };
 const mapDispatchToProps = dispatch => {
 	return {
-		auth: (username, password) => dispatch(authLogin(username, password)),
+		onAuth: (username, password) => dispatch(authLogin(username, password)),
 	};
 };
 

@@ -1,4 +1,12 @@
-import { AUTH_START, AUTH_SUCCESS, AUTH_FAIL, AUTH_LOGOUT } from '../actions/types';
+import {
+	START_LOGIN,
+	LOGIN_SUCCESS,
+	LOGIN_FAIL,
+	START_REGISTERATION,
+	REGISTRATION_SUCCESS,
+	REGISTRATION_FAIL,
+	LOGOUT,
+} from '../actions/types';
 
 const initialState = {
 	token: null,
@@ -9,13 +17,15 @@ const initialState = {
 
 export default function(state = initialState, action) {
 	switch (action.type) {
-		case AUTH_START:
+		case START_LOGIN:
+		case START_REGISTERATION:
 			return {
 				...state,
 				error: null,
 				isLoading: true,
 			};
-		case AUTH_SUCCESS:
+		case LOGIN_SUCCESS:
+		case REGISTRATION_SUCCESS:
 			return {
 				...state,
 				token: action.payload,
@@ -23,14 +33,15 @@ export default function(state = initialState, action) {
 				isLoading: false,
 				error: null,
 			};
-		case AUTH_FAIL:
+		case LOGIN_FAIL:
+		case REGISTRATION_FAIL:
 			return {
 				...state,
 				error: action.payload,
 				isAuthenticated: false,
 				isLoading: false,
 			};
-		case AUTH_LOGOUT:
+		case LOGOUT:
 			return {
 				...state,
 				isAuthenticated: false,

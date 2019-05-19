@@ -10,6 +10,7 @@ autopep8 = "*"
 django = "*"
 djangorestframework = "*"
 django-cors-headers = "*"
+channels = "*"
 
 [requires]
 python_version = "3.6"

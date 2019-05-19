@@ -10,15 +10,26 @@ class Registration extends React.Component {
 		confirmDirty: false,
 	};
 
+	componentDidMount() {
+		if (this.props.isAuthenticated) {
+			this.props.history.push('/dashboard');
+		}
+	}
+
+	componentWillReceiveProps(nextProps) {
+		if (nextProps.errors) {
+			this.setState({ errors: nextProps.errors });
+		}
+	}
+
 	handleSubmit = e => {
 		e.preventDefault();
 		this.props.form.validateFieldsAndScroll((err, values) => {
 			if (!err) {
-				console.log('Received values of form: ', values);
-				this.props.auth(values.userName, values.email, values.password, values.confirm);
-				if (this.props.isAuthenticated) {
-					this.props.history.push('/');
-				}
+				console.log('Received values: ', values);
+				this.props.onAuth(values.email, values.username, values.password, values.confirm);
+
+				this.props.history.push('/login');
 			}
 		});
 	};
@@ -168,15 +179,15 @@ class Registration extends React.Component {
 const RegistrationForm = Form.create({ name: 'register' })(Registration);
 const mapStateToProps = state => {
 	return {
-		isLoading: state.isLoading,
-		error: state.error,
+		isLoading: state.auth.isLoading,
 		isAuthenticated: state.isAuthenticated,
+		error: state.auth.error,
 	};
 };
 
 const mapDispatchToProps = dispatch => {
 	return {
-		auth: (email, username, password1, password2) =>
+		onAuth: (email, username, password1, password2) =>
 			dispatch(authRegistration(email, username, password1, password2)),
 	};
 };

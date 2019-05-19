@@ -1,22 +1,49 @@
 import axios from 'axios';
-import { AUTH_START, AUTH_SUCCESS, AUTH_FAIL, AUTH_LOGOUT } from './types';
+import {
+	START_LOGIN,
+	LOGIN_SUCCESS,
+	LOGIN_FAIL,
+	START_REGISTERATION,
+	REGISTRATION_SUCCESS,
+	REGISTRATION_FAIL,
+	LOGOUT,
+} from './types';
 
-export const authStart = () => {
+export const loginStart = () => {
 	return {
-		type: AUTH_START,
+		type: START_LOGIN,
+	};
+};
+export const registrationStart = () => {
+	return {
+		type: START_REGISTERATION,
 	};
 };
 
-export const authSuccess = token => {
+export const loginSuccess = token => {
 	return {
-		type: AUTH_SUCCESS,
+		type: LOGIN_SUCCESS,
 		payload: token,
 	};
 };
 
-export const authFail = error => {
+export const registrationSuccess = token => {
 	return {
-		type: AUTH_FAIL,
+		type: REGISTRATION_SUCCESS,
+		payload: token,
+	};
+};
+
+export const loginFail = token => {
+	return {
+		type: LOGIN_FAIL,
+		payload: error,
+	};
+};
+
+export const registrationFail = token => {
+	return {
+		type: REGISTRATION_FAIL,
 		payload: error,
 	};
 };
@@ -25,7 +52,7 @@ export const logout = () => {
 	localStorage.removeItem('token');
 	localStorage.removeItem('expirationDate');
 	return {
-		type: AUTH_LOGOUT,
+		type: LOGOUT,
 	};
 };
 
@@ -36,7 +63,7 @@ export const checkAuthTimeOut = expirationDate => dispatch => {
 };
 
 export const authLogin = (username, password) => dispatch => {
-	dispatch(authStart());
+	dispatch(loginStart());
 	let data = {
 		username,
 		password,
@@ -48,17 +75,17 @@ export const authLogin = (username, password) => dispatch => {
 			const expirationDate = new Date(new Date().getTime() + 3600 * 1000);
 			localStorage.setItem('token', token);
 			localStorage.setItem('expirationDate', expirationDate);
-			dispatch(authSuccess(token));
+			dispatch(loginSuccess(token));
 			dispatch(checkAuthTimeOut(3600));
 		})
-		.catch(err => dispatch(authFail(err)));
+		.catch(err => dispatch(loginFail(err)));
 };
 
-export const authRegistration = (username, email, password1, password2) => dispatch => {
-	dispatch(authStart());
+export const authRegistration = (email, username, password1, password2) => dispatch => {
+	dispatch(registrationStart());
 	let data = {
-		username,
 		email,
+		username,
 		password1,
 		password2,
 	};
@@ -69,23 +96,25 @@ export const authRegistration = (username, email, password1, password2) => dispa
 			const expirationDate = new Date(new Date().getTime() + 3600 * 1000);
 			localStorage.setItem('token', token);
 			localStorage.setItem('expirationDate', expirationDate);
-			dispatch(authSuccess(token));
+			dispatch(registrationSuccess(token));
 			dispatch(checkAuthTimeOut(3600));
 		})
-		.catch(err => dispatch(authFail(err)));
+		.catch(err => dispatch(registrationFail(err)));
 };
 
-export const authCheckState = () => dispatch => {
-	const token = localStorage.getItem('token');
-	if (token === undefined) {
-		dispatch(logout());
-	} else {
-		const expirationDate = new Date(localStorage.getItem('expirationDate'));
-		if (expirationDate <= new Date()) {
+export const authCheckState = () => {
+	return dispatch => {
+		const token = localStorage.getItem('token');
+		if (token === undefined) {
 			dispatch(logout());
 		} else {
-			dispatch(authSuccess(token));
-			dispatch(checkAuthTimeout((expirationDate.getTime() - new Date().getTime()) / 1000));
+			const expirationDate = new Date(localStorage.getItem('expirationDate'));
+			if (expirationDate <= new Date()) {
+				dispatch(logout());
+			} else {
+				dispatch(loginSuccess(token));
+				dispatch(checkAuthTimeOut((expirationDate.getTime() - new Date().getTime()) / 1000));
+			}
 		}
-	}
+	};
 };
